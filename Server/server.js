@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const connection = require("./DB");
 
 //import routers by creating constant variables
+const userRouter = require("./Routes/userRoutes");
 
 // database connection
 connection();
@@ -21,6 +22,7 @@ app.use(cors());
 // app.use(bodyParser.json());
 
 // routes
+app.use("/api/user", userRouter);
 
 const port = process.env.PORT || 3001;
 
