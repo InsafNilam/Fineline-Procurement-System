@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "react-native-toast-notifications";
 import { SafeAreaView, View, Text, TextInput } from "react-native";
+import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
 import Icon from "react-native-dynamic-vector-icons";
@@ -57,7 +58,24 @@ const Login = () => {
 
   const handleSubmit = () => {
     if (values.email !== "" && values.password !== "") {
-      navigation.navigate("Home");
+      axios
+        .post("https://httpbin.org/anything", values)
+        .then((res) => {
+          console.log(res);
+          // let userToken = res.data.token;
+          // console.log(userToken);
+          // navigation.navigate("Home");
+        })
+        .catch((e) => {
+          console.log("Error:", e.message);
+          toast.show("Enter username and password", {
+            type: "error",
+            placement: "top",
+            duration: 1000,
+            offset: 30,
+            animationType: "slide-in",
+          });
+        });
     } else {
       toast.show("Enter username and password", {
         type: "warning",

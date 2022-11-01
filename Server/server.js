@@ -23,6 +23,9 @@ app.use(cors());
 
 // routes
 app.use("/api/user", userRouter);
+app.get("/", (req, res) => {
+  res.send("Hello World");
+});
 
 const port = process.env.PORT || 3001;
 
