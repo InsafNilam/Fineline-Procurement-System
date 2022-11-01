@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "react-native-toast-notifications";
 import { SafeAreaView, View, Text, TextInput } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
@@ -56,20 +57,39 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (values.email !== "" && values.password !== "") {
-      axios
-        .post("https://httpbin.org/anything", values)
+      await axios
+        .post("https://finelineapi.herokuapp.com/api/user/login", values)
         .then((res) => {
-          console.log(res);
-          // let userToken = res.data.token;
-          // console.log(userToken);
-          // navigation.navigate("Home");
+          let userToken = res.data.token;
+          let userName = res.data.name;
+          let userRole = res.data.role;
+          let userEmail = res.data.email;
+
+          if (userToken !== null) {
+            AsyncStorage.setItem("userToken", userToken);
+            AsyncStorage.setItem("userName", userName);
+            AsyncStorage.setItem("userRole", userRole);
+            AsyncStorage.setItem("userEmail", userEmail);
+
+            toast.show("Login Successful", {
+              type: "success",
+              placement: "top",
+              duration: 1000,
+              offset: 30,
+              animationType: "slide-in",
+            });
+
+            setTimeout(() => {
+              navigation.navigate("Home");
+            }, 1000);
+          }
         })
         .catch((e) => {
           console.log("Error:", e.message);
-          toast.show("Enter username and password", {
-            type: "error",
+          toast.show("Invalid credentials", {
+            type: "danger",
             placement: "top",
             duration: 1000,
             offset: 30,
@@ -147,7 +167,6 @@ const Login = () => {
               type="AntDesign"
               size={20}
               color="black"
-              onPress={() => {}}
               style={{
                 position: "absolute",
                 top: 22,
@@ -175,7 +194,6 @@ const Login = () => {
               type="AntDesign"
               size={20}
               color="black"
-              onPress={() => {}}
               style={{
                 position: "absolute",
                 top: 22,
