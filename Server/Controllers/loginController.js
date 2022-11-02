@@ -7,9 +7,9 @@ const User = require("../Models/userModel");
 
 // Create new admin
 const createUser = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, role, phone } = req.body;
 
-  if (!name || !email || !password || !role) {
+  if (!name || !email || !password || !role || !phone) {
     res.status(400);
     throw new Error("please fill all required fields");
   }
@@ -31,6 +31,7 @@ const createUser = asyncHandler(async (req, res) => {
     name,
     email,
     role,
+    phone,
     password: hashedPassword,
   });
 
@@ -56,6 +57,8 @@ const loginUser = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      phone: user.phone,
+      date: user.register_date,
       token: generateToken(user._id),
     });
   } else {

@@ -14,9 +14,13 @@ const userSchema = new Schema({
     type: String,
     required: [true, "Customer Password is required"],
   },
+  phone: {
+    type: Number,
+    required: [true, "Customer Role is required"],
+  },
   role: {
     type: String,
-    required: true,
+    required: [true, "Customer Role is required"],
   },
   register_date: {
     type: Date,

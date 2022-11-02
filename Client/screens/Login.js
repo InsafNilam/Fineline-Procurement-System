@@ -7,7 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
 import Icon from "react-native-dynamic-vector-icons";
 
-import Header from "../components/Header";
+import { LoginHeader } from "../components/Header";
 import { Button } from "../components/Button";
 
 // Keep the splash screen visible while we fetch resources
@@ -61,29 +61,37 @@ const Login = () => {
     if (values.email !== "" && values.password !== "") {
       await axios
         .post("https://finelineapi.herokuapp.com/api/user/login", values)
-        .then((res) => {
+        .then(async (res) => {
           let userToken = res.data.token;
+          let userID = res.data._id;
           let userName = res.data.name;
           let userRole = res.data.role;
           let userEmail = res.data.email;
+          let userPhone = res.data.phone;
+          let userDate = res.data.date.split("T")[0];
 
-          if (userToken !== null) {
-            AsyncStorage.setItem("userToken", userToken);
-            AsyncStorage.setItem("userName", userName);
-            AsyncStorage.setItem("userRole", userRole);
-            AsyncStorage.setItem("userEmail", userEmail);
+          if (
+            userToken !== null &&
+            userRole.toLowerCase().includes("manager")
+          ) {
+            await AsyncStorage.setItem("userID", userID);
+            await AsyncStorage.setItem("userName", userName);
+            await AsyncStorage.setItem("userRole", userRole);
+            await AsyncStorage.setItem("userEmail", userEmail);
+            await AsyncStorage.setItem("userPhone", String(userPhone));
+            await AsyncStorage.setItem("userDate", userDate);
 
             toast.show("Login Successful", {
               type: "success",
               placement: "top",
-              duration: 1000,
+              duration: 500,
               offset: 30,
               animationType: "slide-in",
             });
 
             setTimeout(() => {
-              navigation.navigate("Home");
-            }, 1000);
+              navigation.navigate("BottomNav");
+            }, 500);
           }
         })
         .catch((e) => {
@@ -112,10 +120,10 @@ const Login = () => {
   }
   return (
     <SafeAreaView
-      style={{ flex: 1, paddingTop: 40, backgroundColor: "#72A0C1" }}
+      style={{ flex: 1, paddingTop: 20, backgroundColor: "#72A0C1" }}
       onLayout={onLayoutRootView}
     >
-      <Header />
+      <LoginHeader />
       <View
         style={{
           borderTopLeftRadius: 60,

@@ -4,8 +4,10 @@ import { ToastProvider } from "react-native-toast-notifications";
 import { useFonts } from "expo-font";
 
 import Login from "./screens/Login";
-import Home from "./screens/Home";
-import Details from "./screens/Details";
+import TabNavigation from "./components/TabNavigation";
+import ViewOrder from "./screens/ViewOrder";
+import PurchaseOrder from "./screens/PurchaseOrder";
+import AddItem from "./screens/AddItem";
 
 const Stack = createStackNavigator();
 const theme = {
@@ -35,8 +37,10 @@ const App = () => {
           initialRouteName="Login"
         >
           <Stack.Screen name="Login" component={Login} />
-          <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="Detail" component={Details} />
+          <Stack.Screen name="BottomNav" component={TabNavigation} />
+          <Stack.Screen name="ViewOrder" component={ViewOrder} />
+          <Stack.Screen name="PurchaseOrder" component={PurchaseOrder} />
+          <Stack.Screen name="AddItem" component={AddItem} />
         </Stack.Navigator>
       </NavigationContainer>
     </ToastProvider>

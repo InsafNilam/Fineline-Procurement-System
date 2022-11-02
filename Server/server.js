@@ -8,6 +8,9 @@ const connection = require("./DB");
 
 //import routers by creating constant variables
 const userRouter = require("./Routes/userRoutes");
+const purchaseRouter = require("./Routes/purchaseRoutes");
+const siteRouter = require("./Routes/siteRoutes");
+const supplierRouter = require("./Routes/supplierRoutes");
 
 // database connection
 connection();
@@ -23,6 +26,10 @@ app.use(cors());
 
 // routes
 app.use("/api/user", userRouter);
+app.use("/api/purchase", purchaseRouter);
+app.use("/api/site", siteRouter);
+app.use("/api/supplier", supplierRouter);
+
 app.get("/", (req, res) => {
   res.send("Hello World");
 });
