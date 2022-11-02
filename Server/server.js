@@ -11,6 +11,7 @@ const userRouter = require("./Routes/userRoutes");
 const purchaseRouter = require("./Routes/purchaseRoutes");
 const siteRouter = require("./Routes/siteRoutes");
 const supplierRouter = require("./Routes/supplierRoutes");
+const orderRouter = require("./Routes/orderRoutes");
 
 // database connection
 connection();
@@ -29,6 +30,7 @@ app.use("/api/user", userRouter);
 app.use("/api/purchase", purchaseRouter);
 app.use("/api/site", siteRouter);
 app.use("/api/supplier", supplierRouter);
+app.use("/api/order", orderRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World");

@@ -1,5 +1,6 @@
 import { SafeAreaView, Text, View, ScrollView, TextInput } from "react-native";
 import DatePicker from "@react-native-community/datetimepicker";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SelectList from "react-native-dropdown-select-list";
 import { useToast } from "react-native-toast-notifications";
@@ -20,10 +21,39 @@ const PurchaseOrder = ({ navigation }) => {
     supplierName: "",
     buyerName: "",
     deliverAddress: "",
-    date,
+    phone: "",
+    userID: "",
+    deliverDate: new Date(),
   });
+  const hideDatePicker = () => {
+    setShow(false);
+  };
+
+  const handleConfirm = (date) => {
+    setValues({
+      ...values,
+      phone: userPhone,
+      buyerName: userName,
+      userID: userID,
+      items: itemDetails,
+      deliverDate: date,
+    });
+    hideDatePicker();
+  };
+
+  const handleCheck = () => {
+    setValues({
+      ...values,
+      phone: userPhone,
+      buyerName: userName,
+      userID: userID,
+      items: itemDetails,
+    });
+  };
+
   const [userName, setUserName] = useState("");
   const [userPhone, setUserPhone] = useState("");
+  const [userID, setUserID] = useState("");
   const [show, setShow] = useState(false);
   const toast = useToast();
   const [site, setSite] = useState("");
@@ -50,6 +80,45 @@ const PurchaseOrder = ({ navigation }) => {
     }
   };
 
+  const handleChange = (name, value) => {
+    setValues({
+      ...values,
+      [name]: value,
+    });
+  };
+  const handleSubmit = () => {
+    if (
+      values.buyerName !== "" &&
+      values.deliverAddress !== "" &&
+      values.deliverDate !== new Date() &&
+      values.items !== null &&
+      values.siteName !== "" &&
+      values.supplierName !== "" &&
+      values.phone !== ""
+    ) {
+      axios
+        .post("https://finelineapi.herokuapp.com/api/order/addOrder", values)
+        .then((res) => {
+          toast.show("Successfully Placed", {
+            type: "success",
+            placement: "top",
+            duration: 1000,
+            offset: 30,
+            animationType: "slide-in",
+          });
+        });
+      // navigation.navigate("Order");
+    } else {
+      toast.show("Not Successfully Placed", {
+        type: "danger",
+        placement: "top",
+        duration: 1000,
+        offset: 30,
+        animationType: "slide-in",
+      });
+    }
+    console.log(values);
+  };
   useEffect(() => {
     async function fetchData() {
       await axios
@@ -83,7 +152,10 @@ const PurchaseOrder = ({ navigation }) => {
         setUserName(val);
       });
       await AsyncStorage.getItem("userPhone").then((val) => {
-        setUserPhone(val);
+        setUserPhone("0" + String(val));
+      });
+      await AsyncStorage.getItem("userID").then((val) => {
+        setUserID(val);
       });
     }
     fetchData();
@@ -124,7 +196,9 @@ const PurchaseOrder = ({ navigation }) => {
                 placeholder="Select Item"
                 setSelected={setSite}
                 data={siteData}
-                onSelect={() => alert(site)}
+                onSelect={() =>
+                  handleChange("siteName", siteData[site - 1].value)
+                }
               />
             </View>
             <View>
@@ -184,13 +258,16 @@ const PurchaseOrder = ({ navigation }) => {
                 placeholder="Select Item"
                 setSelected={setSupplier}
                 data={supplierData}
-                onSelect={() => alert(supplier)}
+                onSelect={() =>
+                  handleChange("supplierName", supplierData[supplier - 1].value)
+                }
               />
             </View>
             <View style={{ marginBottom: 12 }}>
               <Text>Buyer Name</Text>
               <TextInput
                 value={userName}
+                editable={false}
                 onChangeText={() => {}}
                 placeholder="Enter UserName"
                 style={{
@@ -207,8 +284,10 @@ const PurchaseOrder = ({ navigation }) => {
               <TextInput
                 multiline
                 numberOfLines={4}
-                // value={}
-                onChangeText={() => {}}
+                value={values.deliverAddress}
+                onChangeText={(text) => {
+                  handleChange("deliverAddress", text);
+                }}
                 placeholder="Enter Delivery Address"
                 style={{
                   padding: 10,
@@ -218,33 +297,21 @@ const PurchaseOrder = ({ navigation }) => {
                 }}
               />
             </View>
-            <View style={{ marginBottom: 12 }}>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
               <Text>Required Date</Text>
-              {show && (
-                <DatePicker
-                  style={{ width: 200 }}
-                  value={new Date()}
-                  mode="date"
-                  placeholder="select date"
-                  format="YYYY-MM-DD"
-                  minDate={new Date()}
-                  customStyles={{
-                    dateIcon: {
-                      position: "absolute",
-                      left: 0,
-                      top: 4,
-                      marginLeft: 0,
-                    },
-                    dateInput: {
-                      marginLeft: 36,
-                    },
-                    // ... You can check the source to find the other keys.
-                  }}
-                  onDateChange={(date) => {
-                    // this.setState({ date: date });
-                  }}
-                />
-              )}
+              <DateTimePickerModal
+                isVisible={show}
+                mode="date"
+                minimumDate={new Date()}
+                onConfirm={handleConfirm}
+                onCancel={hideDatePicker}
+              />
+
               <Icon
                 size={24}
                 name="calendar-alt"
@@ -252,6 +319,44 @@ const PurchaseOrder = ({ navigation }) => {
                 onPress={() => setShow(!show)}
               />
             </View>
+            <Text
+              style={{
+                marginBottom: 12,
+                textAlign: "center",
+                fontSize: 15,
+                fontFamily: "InterRegular",
+              }}
+            >
+              {String(values.deliverDate.toUTCString())}
+            </Text>
+            <View style={{ marginBottom: 12 }}>
+              <Text>Contact Details</Text>
+              <TextInput
+                value={userPhone}
+                editable={false}
+                onChangeText={() => {}}
+                placeholder="Enter User Phone"
+                style={{
+                  height: 40,
+                  padding: 10,
+                  paddingLeft: 35,
+                  borderWidth: 0.5,
+                  borderRadius: 10,
+                }}
+              />
+            </View>
+            <Button
+              width={100}
+              fontSize={12}
+              text={"Check"}
+              handlePress={handleCheck}
+            />
+            <Button
+              width={100}
+              fontSize={12}
+              text={"Proceed"}
+              handlePress={handleSubmit}
+            />
           </View>
         </ScrollView>
       </View>
