@@ -91,7 +91,6 @@ const PurchaseOrder = ({ navigation }) => {
       values.buyerName !== "" &&
       values.deliverAddress !== "" &&
       values.deliverDate !== "" &&
-      values.items !== null &&
       values.siteName !== "" &&
       values.supplierName !== "" &&
       values.phone !== ""
@@ -108,11 +107,14 @@ const PurchaseOrder = ({ navigation }) => {
             animationType: "slide-in",
           });
 
+          {
+            console.log(res);
+          }
           // itemDetails.forEach((val) =>
           //   axios
           //     .put(
           //       `https://finelineapi.herokuapp.com/api/purchase/updateItem/${val._id}`,
-          //       { userId: userID }
+          //       { orderId: res.data._id }
           //     )
           //     .then((res) => {
           //       console.log(res);

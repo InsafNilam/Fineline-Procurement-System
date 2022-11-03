@@ -1,4 +1,4 @@
-const Order = require("../Models/itemModel");
+const Order = require("../Models/orderModule");
 
 const createOrder = (req, res) => {
   const {
