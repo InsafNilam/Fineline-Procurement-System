@@ -15,29 +15,30 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const PurchaseOrder = ({ navigation }) => {
+  const [date, setDate] = useState(new Date());
   const [values, setValues] = useState({
     siteName: "",
-    items: [],
     supplierName: "",
     buyerName: "",
     deliverAddress: "",
     phone: "",
     userID: "",
-    deliverDate: new Date(),
+    deliverDate: date.toString(),
   });
   const hideDatePicker = () => {
     setShow(false);
   };
 
   const handleConfirm = (date) => {
+    setDate(date);
     setValues({
       ...values,
       phone: userPhone,
       buyerName: userName,
       userID: userID,
-      items: itemDetails,
-      deliverDate: date,
+      deliverDate: date.toString(),
     });
+
     hideDatePicker();
   };
 
@@ -47,7 +48,6 @@ const PurchaseOrder = ({ navigation }) => {
       phone: userPhone,
       buyerName: userName,
       userID: userID,
-      items: itemDetails,
     });
   };
 
@@ -90,7 +90,7 @@ const PurchaseOrder = ({ navigation }) => {
     if (
       values.buyerName !== "" &&
       values.deliverAddress !== "" &&
-      values.deliverDate !== new Date() &&
+      values.deliverDate !== "" &&
       values.items !== null &&
       values.siteName !== "" &&
       values.supplierName !== "" &&
@@ -99,6 +99,7 @@ const PurchaseOrder = ({ navigation }) => {
       axios
         .post("https://finelineapi.herokuapp.com/api/order/addOrder", values)
         .then((res) => {
+          console.log(res);
           toast.show("Successfully Placed", {
             type: "success",
             placement: "top",
@@ -106,7 +107,20 @@ const PurchaseOrder = ({ navigation }) => {
             offset: 30,
             animationType: "slide-in",
           });
-        });
+
+          // itemDetails.forEach((val) =>
+          //   axios
+          //     .put(
+          //       `https://finelineapi.herokuapp.com/api/purchase/updateItem/${val._id}`,
+          //       { userId: userID }
+          //     )
+          //     .then((res) => {
+          //       console.log(res);
+          //     })
+          //     .catch((e) => console.log(e))
+          // );
+        })
+        .catch((e) => console.log(e));
       // navigation.navigate("Order");
     } else {
       toast.show("Not Successfully Placed", {
@@ -209,40 +223,44 @@ const PurchaseOrder = ({ navigation }) => {
                   <DataTable.Title numeric>Quantity</DataTable.Title>
                 </DataTable.Header>
                 {itemDetails
-                  ? itemDetails.map((val) => (
-                      <DataTable.Row key={val._id}>
-                        <DataTable.Cell>{val.name}</DataTable.Cell>
-                        <DataTable.Cell>{val.description}</DataTable.Cell>
-                        <DataTable.Cell numeric>
-                          {val.quantity}{" "}
-                          <Icon
-                            name="trash"
-                            type="FontAwesome5"
-                            size={12}
-                            onPress={() => {
-                              let id = val._id;
-                              axios
-                                .delete(
-                                  `https://finelineapi.herokuapp.com/api/purchase/deleteItem/${val._id}`
-                                )
-                                .then((res) => {
-                                  toast.show("Successfully Deleted", {
-                                    type: "success",
-                                    placement: "top",
-                                    duration: 1000,
-                                    offset: 30,
-                                    animationType: "slide-in",
-                                  });
-                                  setItemDetails(
-                                    itemDetails.filter((val) => val._id !== id)
-                                  );
-                                })
-                                .catch((e) => console.log(e));
-                            }}
-                          />
-                        </DataTable.Cell>
-                      </DataTable.Row>
-                    ))
+                  ? itemDetails
+                      .filter((val) => val.orderId === "")
+                      .map((val) => (
+                        <DataTable.Row key={val._id}>
+                          <DataTable.Cell>{val.name}</DataTable.Cell>
+                          <DataTable.Cell>{val.description}</DataTable.Cell>
+                          <DataTable.Cell numeric>
+                            {val.quantity}{" "}
+                            <Icon
+                              name="trash"
+                              type="FontAwesome5"
+                              size={12}
+                              onPress={() => {
+                                let id = val._id;
+                                axios
+                                  .delete(
+                                    `https://finelineapi.herokuapp.com/api/purchase/deleteItem/${val._id}`
+                                  )
+                                  .then((res) => {
+                                    toast.show("Successfully Deleted", {
+                                      type: "success",
+                                      placement: "top",
+                                      duration: 1000,
+                                      offset: 30,
+                                      animationType: "slide-in",
+                                    });
+                                    setItemDetails(
+                                      itemDetails.filter(
+                                        (val) => val._id !== id
+                                      )
+                                    );
+                                  })
+                                  .catch((e) => console.log(e));
+                              }}
+                            />
+                          </DataTable.Cell>
+                        </DataTable.Row>
+                      ))
                   : null}
               </DataTable>
             </View>
@@ -327,7 +345,7 @@ const PurchaseOrder = ({ navigation }) => {
                 fontFamily: "InterRegular",
               }}
             >
-              {String(values.deliverDate.toUTCString())}
+              {String(date.toUTCString())}
             </Text>
             <View style={{ marginBottom: 12 }}>
               <Text>Contact Details</Text>

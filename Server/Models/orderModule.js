@@ -1,14 +1,11 @@
 const mongoose = require("mongoose");
+import Item from "./itemModel";
 const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
   siteName: {
     type: String,
-    required: [true, "Item Name is required"],
-  },
-  items: {
-    type: Array,
-    required: [true, "Description is required"],
+    required: [true, "Site Name is required"],
   },
   supplierName: {
     type: Number,
@@ -28,7 +25,7 @@ const orderSchema = new Schema({
   },
   deliverDate: {
     type: String,
-    required: [true, "Delivery is required"],
+    required: [true, "Delivery Date is required"],
   },
   total: {
     type: Number,

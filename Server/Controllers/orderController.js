@@ -3,7 +3,6 @@ const Order = require("../Models/itemModel");
 const createOrder = (req, res) => {
   const {
     siteName,
-    items,
     supplierName,
     buyerName,
     phone,
@@ -14,7 +13,6 @@ const createOrder = (req, res) => {
 
   const newOrder = new Order({
     siteName,
-    items,
     supplierName,
     buyerName,
     phone,
