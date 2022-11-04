@@ -1,11 +1,11 @@
 import { SafeAreaView, Text, View, ScrollView, TextInput } from "react-native";
-import DatePicker from "@react-native-community/datetimepicker";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SelectList from "react-native-dropdown-select-list";
 import { useToast } from "react-native-toast-notifications";
 import { DataTable } from "react-native-paper";
 import Icon from "react-native-dynamic-vector-icons";
+import { useIsFocused } from "@react-navigation/native";
 
 import { Button, CircularButton } from "../components/Button";
 import { Header } from "../components/Header";
@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 const PurchaseOrder = ({ navigation }) => {
+  const isFocused = useIsFocused();
   const [date, setDate] = useState(new Date());
   const [values, setValues] = useState({
     siteName: "",
@@ -23,8 +24,25 @@ const PurchaseOrder = ({ navigation }) => {
     deliverAddress: "",
     phone: "",
     userID: "",
+    items: [],
     deliverDate: date.toString(),
   });
+
+  let siteData = [];
+  let supplierData = [];
+
+  const [userName, setUserName] = useState("");
+  const [userPhone, setUserPhone] = useState("");
+  const [userID, setUserID] = useState("");
+  const [show, setShow] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const toast = useToast();
+  const [site, setSite] = useState("");
+  const [supplier, setSupplier] = useState("");
+  const [siteValue, setSiteValue] = useState([]);
+  const [itemDetails, setItemDetails] = useState([]);
+  const [supplierDetails, setSupplierDetails] = useState([]);
+
   const hideDatePicker = () => {
     setShow(false);
   };
@@ -33,36 +51,38 @@ const PurchaseOrder = ({ navigation }) => {
     setDate(date);
     setValues({
       ...values,
-      phone: userPhone,
-      buyerName: userName,
-      userID: userID,
       deliverDate: date.toString(),
     });
-
     hideDatePicker();
   };
 
   const handleCheck = () => {
-    setValues({
-      ...values,
-      phone: userPhone,
-      buyerName: userName,
-      userID: userID,
-    });
+    if (itemDetails.length !== 0) {
+      itemDetails.forEach((val) =>
+        values.items.push({
+          name: val.name,
+          description: val.description,
+          quantity: val.quantity,
+        })
+      );
+      setValues({
+        ...values,
+        phone: userPhone,
+        buyerName: userName,
+        userID: userID,
+      });
+      setVisible(true);
+    } else {
+      toast.show("Order Cannot be Placed without items", {
+        type: "warning",
+        placement: "top",
+        duration: 1000,
+        offset: 30,
+        animationType: "slide-in",
+      });
+    }
+    console.log(values);
   };
-
-  const [userName, setUserName] = useState("");
-  const [userPhone, setUserPhone] = useState("");
-  const [userID, setUserID] = useState("");
-  const [show, setShow] = useState(false);
-  const toast = useToast();
-  const [site, setSite] = useState("");
-  const [supplier, setSupplier] = useState("");
-  let siteData = [];
-  let supplierData = [];
-  const [siteValue, setSiteValue] = useState([]);
-  const [itemDetails, setItemDetails] = useState([]);
-  const [supplierDetails, setSupplierDetails] = useState([]);
 
   const getSiteDetails = (value) => {
     let count = 1;
@@ -93,7 +113,8 @@ const PurchaseOrder = ({ navigation }) => {
       values.deliverDate !== "" &&
       values.siteName !== "" &&
       values.supplierName !== "" &&
-      values.phone !== ""
+      values.phone !== "" &&
+      values.items.length !== 0
     ) {
       axios
         .post("https://finelineapi.herokuapp.com/api/order/addOrder", values)
@@ -106,26 +127,11 @@ const PurchaseOrder = ({ navigation }) => {
             offset: 30,
             animationType: "slide-in",
           });
-
-          {
-            console.log(res);
-          }
-          // itemDetails.forEach((val) =>
-          //   axios
-          //     .put(
-          //       `https://finelineapi.herokuapp.com/api/purchase/updateItem/${val._id}`,
-          //       { orderId: res.data._id }
-          //     )
-          //     .then((res) => {
-          //       console.log(res);
-          //     })
-          //     .catch((e) => console.log(e))
-          // );
+          navigation.goBack();
         })
         .catch((e) => console.log(e));
-      // navigation.navigate("Order");
     } else {
-      toast.show("Not Successfully Placed", {
+      toast.show("Order not Placed", {
         type: "danger",
         placement: "top",
         duration: 1000,
@@ -149,9 +155,18 @@ const PurchaseOrder = ({ navigation }) => {
           setSupplierDetails(res.data);
         })
         .catch((e) => console.log(e));
-      await AsyncStorage.getItem("userID").then((val) => {
-        axios
-          .get(`https://finelineapi.herokuapp.com/api/purchase/getItem/${val}`)
+      await AsyncStorage.getItem("userName").then((val) => {
+        setUserName(val);
+      });
+      await AsyncStorage.getItem("userPhone").then((val) => {
+        setUserPhone("0" + String(val));
+      });
+      await AsyncStorage.getItem("userID").then(async (val) => {
+        setUserID(val);
+        await axios
+          .get(
+            `https://finelineapi.herokuapp.com/api/purchase/getItemByUserId/${val}`
+          )
           .then((res) => {
             setItemDetails(res.data);
             toast.show("Successfully Fetched", {
@@ -164,18 +179,9 @@ const PurchaseOrder = ({ navigation }) => {
           })
           .catch((e) => console.log(e));
       });
-      await AsyncStorage.getItem("userName").then((val) => {
-        setUserName(val);
-      });
-      await AsyncStorage.getItem("userPhone").then((val) => {
-        setUserPhone("0" + String(val));
-      });
-      await AsyncStorage.getItem("userID").then((val) => {
-        setUserID(val);
-      });
     }
     fetchData();
-  }, []);
+  }, [isFocused]);
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Header />
@@ -226,7 +232,7 @@ const PurchaseOrder = ({ navigation }) => {
                 </DataTable.Header>
                 {itemDetails
                   ? itemDetails
-                      .filter((val) => val.orderId === "")
+                      .filter((val) => val.userId == userID)
                       .map((val) => (
                         <DataTable.Row key={val._id}>
                           <DataTable.Cell>{val.name}</DataTable.Cell>
@@ -365,18 +371,25 @@ const PurchaseOrder = ({ navigation }) => {
                 }}
               />
             </View>
-            <Button
-              width={100}
-              fontSize={12}
-              text={"Check"}
-              handlePress={handleCheck}
-            />
-            <Button
-              width={100}
-              fontSize={12}
-              text={"Proceed"}
-              handlePress={handleSubmit}
-            />
+            <View
+              style={{ flexDirection: "row", justifyContent: "space-around" }}
+            >
+              <Button
+                width={100}
+                fontSize={12}
+                text={"Check"}
+                handlePress={handleCheck}
+              />
+              {visible && (
+                <Button
+                  width={100}
+                  fontSize={12}
+                  text={"Proceed"}
+                  backgroundColor={"#00ff7f"}
+                  handlePress={handleSubmit}
+                />
+              )}
+            </View>
           </View>
         </ScrollView>
       </View>

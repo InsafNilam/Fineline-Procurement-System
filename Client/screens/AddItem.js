@@ -2,8 +2,8 @@ import { View, Text, SafeAreaView, TextInput } from "react-native";
 import SelectList from "react-native-dropdown-select-list";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useToast } from "react-native-toast-notifications";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
 
 import { Header } from "../components/Header";
 import { Button, CircularButton } from "../components/Button";
@@ -64,7 +64,7 @@ const AddItem = ({ navigation }) => {
             animationType: "slide-in",
           });
           setTimeout(() => {
-            navigation.navigate("Order");
+            navigation.goBack();
           }, 1000);
         });
     } else {

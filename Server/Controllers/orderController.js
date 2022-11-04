@@ -9,6 +9,7 @@ const createOrder = (req, res) => {
     deliverAddress,
     deliverDate,
     userID,
+    items,
   } = req.body;
 
   const newOrder = new Order({
@@ -19,6 +20,7 @@ const createOrder = (req, res) => {
     deliverAddress,
     deliverDate,
     userID,
+    items,
   });
   newOrder.save();
   return res.status(200).json({ msg: "Order has been Added" });

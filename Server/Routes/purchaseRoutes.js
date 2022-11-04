@@ -8,11 +8,13 @@ const {
   createItem,
   getItemById,
   deleteItemById,
+  getItemByUserId,
 } = require("../Controllers/purchaseController");
 
 router.post("/addItem", createItem);
 router.delete("/deleteItem/:id", deleteItemById);
-router.get("/getItem/:id", getItemById);
+router.get("/getItemById/:id", getItemById);
+router.get("/getItemByUserId/:id", getItemByUserId);
 
 router.put("/updateItem/:id", async (req, res) => {
   if (!isValidObjectId(req.params.id))

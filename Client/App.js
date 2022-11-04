@@ -8,6 +8,7 @@ import TabNavigation from "./components/TabNavigation";
 import ViewOrder from "./screens/ViewOrder";
 import PurchaseOrder from "./screens/PurchaseOrder";
 import AddItem from "./screens/AddItem";
+import OrderDetails from "./screens/OrderDetails";
 
 const Stack = createStackNavigator();
 const theme = {
@@ -41,6 +42,7 @@ const App = () => {
           <Stack.Screen name="ViewOrder" component={ViewOrder} />
           <Stack.Screen name="PurchaseOrder" component={PurchaseOrder} />
           <Stack.Screen name="AddItem" component={AddItem} />
+          <Stack.Screen name="OrderDetails" component={OrderDetails} />
         </Stack.Navigator>
       </NavigationContainer>
     </ToastProvider>

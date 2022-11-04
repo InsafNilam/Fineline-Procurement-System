@@ -10,6 +10,10 @@ const orderSchema = new Schema({
     type: String,
     required: [true, "Supplier Name is required"],
   },
+  items: {
+    type: Array,
+    required: [true, "Item is required"],
+  },
   buyerName: {
     type: String,
     required: [true, "Buyer Name is required"],
@@ -28,10 +32,19 @@ const orderSchema = new Schema({
   },
   total: {
     type: Number,
+    default: 0,
   },
   userID: {
     type: String,
     required: [true, "User ID is required"],
+  },
+  staffID: {
+    type: String,
+    default: "",
+  },
+  paidStatus: {
+    type: String,
+    default: "Pending",
   },
   status: {
     type: String,

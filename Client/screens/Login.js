@@ -35,7 +35,6 @@ const Login = () => {
         setAppIsReady(true);
       }
     }
-
     prepare();
   }, []);
 
@@ -88,6 +87,7 @@ const Login = () => {
               offset: 30,
               animationType: "slide-in",
             });
+            setValues({ name: "", password: "" });
 
             setTimeout(() => {
               navigation.navigate("BottomNav");

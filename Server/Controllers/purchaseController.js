@@ -13,8 +13,18 @@ const createItem = (req, res) => {
   return res.status(200).json({ msg: "Item has been Added" });
 };
 
-const getItemById = (req, res) => {
+const getItemByUserId = (req, res) => {
   Item.find({ userId: req.params.id }, (err, doc) => {
+    if (!err) res.send(doc);
+    else
+      console.log(
+        "Error in Retrieving Item Details :" + JSON.stringify(err, undefined, 2)
+      );
+  });
+};
+
+const getItemById = (req, res) => {
+  Item.findById(req.params.id, (err, doc) => {
     if (!err) res.send(doc);
     else
       console.log(
@@ -37,4 +47,5 @@ module.exports = {
   createItem,
   getItemById,
   deleteItemById,
+  getItemByUserId,
 };

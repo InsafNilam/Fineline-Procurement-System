@@ -18,9 +18,6 @@ const itemSchema = new Schema({
     type: String,
     required: [true, "User ID is required"],
   },
-  orderId: {
-    type: String,
-  },
 });
 
 const Item = mongoose.model("items", itemSchema);
